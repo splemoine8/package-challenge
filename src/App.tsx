@@ -10,6 +10,7 @@ interface ChallengeData {
   pancakes: number;
   baconStrips: number;
   helperPancakes: number;
+  sausageLinks: number;
   isActive: boolean;
 }
 
@@ -37,13 +38,14 @@ const calculateTimeRemaining = (challengeData: ChallengeData | null, currentTime
   // Calculate time reduction from food items
   const pancakeReduction = challengeData.pancakes * 60 * 60; // 1 hour per pancake in seconds
   const baconReduction = Math.floor(challengeData.baconStrips / 2) * 15 * 60; // 15 mins per 2 strips in seconds
+  const sausageReduction = Math.floor(challengeData.sausageLinks / 2) * 15 * 60; // 15 mins per 2 links in seconds
   const helperReduction = challengeData.helperPancakes * 30 * 60; // 30 mins per leaguemate pancake in seconds
   
   // Calculate elapsed time since challenge started
   const elapsedSeconds = differenceInSeconds(currentTime, startTime);
   
   // Total time reduction (food items + elapsed time)
-  const totalReduction = pancakeReduction + baconReduction + helperReduction + elapsedSeconds;
+  const totalReduction = pancakeReduction + baconReduction + sausageReduction + helperReduction + elapsedSeconds;
   const remainingSeconds = Math.max(0, totalSeconds - totalReduction);
   
   if (remainingSeconds <= 0) return { 
@@ -78,17 +80,19 @@ const calculateTimeRemaining = (challengeData: ChallengeData | null, currentTime
 const calculateTotalTimeReduction = (data: ChallengeData) => {
   const pancakeReduction = data.pancakes * 60; // 1 hour per pancake
   const baconReduction = Math.floor(data.baconStrips / 2) * 15; // 15 mins per 2 strips
+  const sausageReduction = Math.floor(data.sausageLinks / 2) * 15; // 15 mins per 2 links
   const helperReduction = data.helperPancakes * 30; // 30 mins per leaguemate pancake
   
-  return pancakeReduction + baconReduction + helperReduction;
+  return pancakeReduction + baconReduction + sausageReduction + helperReduction;
 };
 
 // Helper function to calculate calories
 const calculateCalories = (data: ChallengeData) => {
   const pancakeCalories = data.pancakes * 240; // 240 calories per pancake
   const baconCalories = data.baconStrips * 52.5; // 52.5 calories per bacon strip
+  const sausageCalories = data.sausageLinks * 80; // 80 calories per sausage link
   
-  return Math.round(pancakeCalories + baconCalories);
+  return Math.round(pancakeCalories + baconCalories + sausageCalories);
 };
 
 // Styles
@@ -370,6 +374,16 @@ function PublicView() {
             
             <div style={{...foodItemStyle, justifyContent: 'space-between'}}>
               <div style={{display: 'flex', alignItems: 'center', gap: '8px'}}>
+                <span style={{ fontSize: '1.5em' }}>🌭</span>
+                <span>Sausage links eaten: <strong>{challengeData.sausageLinks}</strong></span>
+              </div>
+              <span style={{ color: '#E53E3E', fontWeight: 'bold' }}>
+                -{Math.floor(challengeData.sausageLinks / 2) * 15} min
+              </span>
+            </div>
+            
+            <div style={{...foodItemStyle, justifyContent: 'space-between'}}>
+              <div style={{display: 'flex', alignItems: 'center', gap: '8px'}}>
                 <span style={{ fontSize: '1.5em' }}>🤝</span>
                 <span>Leaguemate pancakes: <strong>{challengeData.helperPancakes}</strong></span>
               </div>
@@ -380,7 +394,7 @@ function PublicView() {
             
             <div style={{...foodItemStyle, justifyContent: 'space-between', borderTop: '1px dashed #ddd', paddingTop: '8px', marginTop: '4px'}}>
               <div style={{display: 'flex', alignItems: 'center', gap: '8px'}}>
-                <span style={{ fontSize: '1.5em' }}>🔥</span>
+                <span style={{ fontSize: '1.5em' }}>💀</span>
                 <span>Calories consumed:</span>
               </div>
               <span style={{ fontWeight: 'bold', color: '#DD6B20' }}>
@@ -467,6 +481,7 @@ function AdminView() {
         pancakes: challengeData?.pancakes || 0,
         baconStrips: challengeData?.baconStrips || 0,
         helperPancakes: challengeData?.helperPancakes || 0,
+        sausageLinks: challengeData?.sausageLinks || 0,
         isActive: true
       }, { merge: true });
       
@@ -485,6 +500,7 @@ function AdminView() {
           pancakes: 0,
           baconStrips: 0,
           helperPancakes: 0,
+          sausageLinks: 0,
           isActive: false
         });
       } catch (error) {
@@ -494,7 +510,7 @@ function AdminView() {
     }
   };
 
-  const addItem = async (type: 'pancakes' | 'baconStrips' | 'helperPancakes') => {
+  const addItem = async (type: 'pancakes' | 'baconStrips' | 'helperPancakes' | 'sausageLinks') => {
     if (!challengeData?.isActive) return;
     
     try {
@@ -676,6 +692,13 @@ function AdminView() {
               {renderButtonText('🥓', 'Add Bacon (-15 min per 2)')}
             </button>
             <button 
+              style={{...buttonStyle, backgroundColor: '#8B4513', color: '#FFF', flex: '1', minWidth: isMobile ? '80px' : '120px', maxWidth: isMobile ? '100px' : '200px'}}
+              onClick={() => addItem('sausageLinks')}
+              title="Add Sausage (-15 min per 2)"
+            >
+              {renderButtonText('🌭', 'Add Sausage (-15 min per 2)')}
+            </button>
+            <button 
               style={{...buttonStyle, backgroundColor: '#0070DD', flex: '1', minWidth: isMobile ? '80px' : '120px', maxWidth: isMobile ? '100px' : '200px'}}
               onClick={() => addItem('helperPancakes')}
               title="Add Leaguemate Pancake (-30 min)"
@@ -707,6 +730,16 @@ function AdminView() {
             
             <div style={{...foodItemStyle, justifyContent: 'space-between'}}>
               <div style={{display: 'flex', alignItems: 'center', gap: '8px'}}>
+                <span style={{ fontSize: '1.5em' }}>🌭</span>
+                <span>Sausage links eaten: <strong>{challengeData.sausageLinks}</strong></span>
+              </div>
+              <span style={{ color: '#E53E3E', fontWeight: 'bold' }}>
+                -{Math.floor(challengeData.sausageLinks / 2) * 15} min
+              </span>
+            </div>
+            
+            <div style={{...foodItemStyle, justifyContent: 'space-between'}}>
+              <div style={{display: 'flex', alignItems: 'center', gap: '8px'}}>
                 <span style={{ fontSize: '1.5em' }}>🤝</span>
                 <span>Leaguemate pancakes: <strong>{challengeData.helperPancakes}</strong></span>
               </div>
@@ -717,7 +750,7 @@ function AdminView() {
             
             <div style={{...foodItemStyle, justifyContent: 'space-between', borderTop: '1px dashed #ddd', paddingTop: '8px', marginTop: '4px'}}>
               <div style={{display: 'flex', alignItems: 'center', gap: '8px'}}>
-                <span style={{ fontSize: '1.5em' }}>🔥</span>
+                <span style={{ fontSize: '1.5em' }}>💀</span>
                 <span>Calories consumed:</span>
               </div>
               <span style={{ fontWeight: 'bold', color: '#DD6B20' }}>
