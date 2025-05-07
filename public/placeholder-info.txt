@@ -1,0 +1,9 @@
+To add the football player image:
+
+1. Save the image you provided as "player-image.png" in this folder (the /public folder).
+2. The image will automatically appear next to the title.
+
+For optimal display, the image should:
+- Have a transparent background
+- Be approximately 120px tall
+- Be in PNG format 
