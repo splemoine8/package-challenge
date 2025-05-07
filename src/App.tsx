@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { doc, setDoc, onSnapshot, serverTimestamp } from 'firebase/firestore';
+import { doc, setDoc, onSnapshot, serverTimestamp, getDoc } from 'firebase/firestore';
 import { db } from './config/firebase';
 import { formatDistanceToNow, format, differenceInSeconds } from 'date-fns';
 import Confetti from 'react-confetti';
@@ -38,7 +38,7 @@ const calculateTimeRemaining = (challengeData: ChallengeData | null, currentTime
   // Calculate time reduction from food items
   const pancakeReduction = challengeData.pancakes * 60 * 60; // 1 hour per pancake in seconds
   const baconReduction = Math.floor(challengeData.baconStrips / 2) * 15 * 60; // 15 mins per 2 strips in seconds
-  const sausageReduction = Math.floor(challengeData.sausageLinks / 2) * 15 * 60; // 15 mins per 2 links in seconds
+  const sausageReduction = Math.floor((challengeData.sausageLinks || 0) / 2) * 15 * 60; // 15 mins per 2 links in seconds
   const helperReduction = challengeData.helperPancakes * 30 * 60; // 30 mins per leaguemate pancake in seconds
   
   // Calculate elapsed time since challenge started
@@ -80,7 +80,7 @@ const calculateTimeRemaining = (challengeData: ChallengeData | null, currentTime
 const calculateTotalTimeReduction = (data: ChallengeData) => {
   const pancakeReduction = data.pancakes * 60; // 1 hour per pancake
   const baconReduction = Math.floor(data.baconStrips / 2) * 15; // 15 mins per 2 strips
-  const sausageReduction = Math.floor(data.sausageLinks / 2) * 15; // 15 mins per 2 links
+  const sausageReduction = Math.floor((data.sausageLinks || 0) / 2) * 15; // 15 mins per 2 links
   const helperReduction = data.helperPancakes * 30; // 30 mins per leaguemate pancake
   
   return pancakeReduction + baconReduction + sausageReduction + helperReduction;
@@ -90,7 +90,7 @@ const calculateTotalTimeReduction = (data: ChallengeData) => {
 const calculateCalories = (data: ChallengeData) => {
   const pancakeCalories = data.pancakes * 240; // 240 calories per pancake
   const baconCalories = data.baconStrips * 52.5; // 52.5 calories per bacon strip
-  const sausageCalories = data.sausageLinks * 80; // 80 calories per sausage link
+  const sausageCalories = (data.sausageLinks || 0) * 80; // 80 calories per sausage link
   
   return Math.round(pancakeCalories + baconCalories + sausageCalories);
 };
@@ -234,7 +234,12 @@ function PublicView() {
     // Listen for changes in the challenge document
     const unsubscribe = onSnapshot(doc(db, 'challenge', 'current'), (doc) => {
       if (doc.exists()) {
-        setChallengeData(doc.data() as ChallengeData);
+        const data = doc.data();
+        // Add safety check for missing sausageLinks field
+        if (data.sausageLinks === undefined) {
+          data.sausageLinks = 0;
+        }
+        setChallengeData(data as ChallengeData);
       }
     });
 
@@ -375,10 +380,10 @@ function PublicView() {
             <div style={{...foodItemStyle, justifyContent: 'space-between'}}>
               <div style={{display: 'flex', alignItems: 'center', gap: '8px'}}>
                 <span style={{ fontSize: '1.5em' }}>🌭</span>
-                <span>Sausage links eaten: <strong>{challengeData.sausageLinks}</strong></span>
+                <span>Sausage links eaten: <strong>{challengeData.sausageLinks || 0}</strong></span>
               </div>
               <span style={{ color: '#E53E3E', fontWeight: 'bold' }}>
-                -{Math.floor(challengeData.sausageLinks / 2) * 15} min
+                -{Math.floor((challengeData.sausageLinks || 0) / 2) * 15} min
               </span>
             </div>
             
@@ -440,7 +445,12 @@ function AdminView() {
     // Listen for changes in the challenge document
     const unsubscribe = onSnapshot(doc(db, 'challenge', 'current'), (doc) => {
       if (doc.exists()) {
-        setChallengeData(doc.data() as ChallengeData);
+        const data = doc.data();
+        // Add safety check for missing sausageLinks field
+        if (data.sausageLinks === undefined) {
+          data.sausageLinks = 0;
+        }
+        setChallengeData(data as ChallengeData);
       }
     });
 
@@ -472,6 +482,31 @@ function AdminView() {
     }, 1000);
     
     return () => clearInterval(interval);
+  }, []);
+
+  // Run a migration check to ensure sausageLinks field exists
+  useEffect(() => {
+    const runMigration = async () => {
+      try {
+        const docRef = doc(db, 'challenge', 'current');
+        const docSnap = await getDoc(docRef);
+        
+        if (docSnap.exists()) {
+          const data = docSnap.data();
+          
+          // Check if sausageLinks field is missing
+          if (data.sausageLinks === undefined) {
+            console.log('Migrating data to include sausageLinks field');
+            // Add the field with a default value of 0
+            await setDoc(docRef, { sausageLinks: 0 }, { merge: true });
+          }
+        }
+      } catch (error) {
+        console.error('Error during migration check:', error);
+      }
+    };
+    
+    runMigration();
   }, []);
 
   const startChallenge = async () => {
@@ -731,10 +766,10 @@ function AdminView() {
             <div style={{...foodItemStyle, justifyContent: 'space-between'}}>
               <div style={{display: 'flex', alignItems: 'center', gap: '8px'}}>
                 <span style={{ fontSize: '1.5em' }}>🌭</span>
-                <span>Sausage links eaten: <strong>{challengeData.sausageLinks}</strong></span>
+                <span>Sausage links eaten: <strong>{challengeData.sausageLinks || 0}</strong></span>
               </div>
               <span style={{ color: '#E53E3E', fontWeight: 'bold' }}>
-                -{Math.floor(challengeData.sausageLinks / 2) * 15} min
+                -{Math.floor((challengeData.sausageLinks || 0) / 2) * 15} min
               </span>
             </div>
             
