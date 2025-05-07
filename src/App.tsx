@@ -83,6 +83,14 @@ const calculateTotalTimeReduction = (data: ChallengeData) => {
   return pancakeReduction + baconReduction + helperReduction;
 };
 
+// Helper function to calculate calories
+const calculateCalories = (data: ChallengeData) => {
+  const pancakeCalories = data.pancakes * 240; // 240 calories per pancake
+  const baconCalories = data.baconStrips * 52.5; // 52.5 calories per bacon strip
+  
+  return Math.round(pancakeCalories + baconCalories);
+};
+
 // Styles
 const containerStyle = {
   padding: '20px',
@@ -367,6 +375,16 @@ function PublicView() {
               </div>
               <span style={{ color: '#E53E3E', fontWeight: 'bold' }}>
                 -{challengeData.helperPancakes * 30} min
+              </span>
+            </div>
+            
+            <div style={{...foodItemStyle, justifyContent: 'space-between', borderTop: '1px dashed #ddd', paddingTop: '8px', marginTop: '4px'}}>
+              <div style={{display: 'flex', alignItems: 'center', gap: '8px'}}>
+                <span style={{ fontSize: '1.5em' }}>🔥</span>
+                <span>Calories consumed:</span>
+              </div>
+              <span style={{ fontWeight: 'bold', color: '#DD6B20' }}>
+                {calculateCalories(challengeData)}
               </span>
             </div>
             
@@ -694,6 +712,16 @@ function AdminView() {
               </div>
               <span style={{ color: '#E53E3E', fontWeight: 'bold' }}>
                 -{challengeData.helperPancakes * 30} min
+              </span>
+            </div>
+            
+            <div style={{...foodItemStyle, justifyContent: 'space-between', borderTop: '1px dashed #ddd', paddingTop: '8px', marginTop: '4px'}}>
+              <div style={{display: 'flex', alignItems: 'center', gap: '8px'}}>
+                <span style={{ fontSize: '1.5em' }}>🔥</span>
+                <span>Calories consumed:</span>
+              </div>
+              <span style={{ fontWeight: 'bold', color: '#DD6B20' }}>
+                {calculateCalories(challengeData)}
               </span>
             </div>
             
