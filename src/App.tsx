@@ -277,7 +277,7 @@ function PublicView() {
       
       <div style={dennysTitleContainerStyle}>
         <div style={dennysBadgeStyle}>
-          Denny's Pancake Challenge
+          Death by Denny's
         </div>
       </div>
 
@@ -296,7 +296,7 @@ function PublicView() {
               textAlign: 'center',
               animation: showCelebration ? 'pulse 1.5s infinite' : 'none'
             }}>
-              <h2 style={{ color: '#2F855A', marginBottom: '8px', fontSize: 'clamp(1.2rem, 4vw, 1.5rem)' }}>🏆 CHALLENGE COMPLETED! 🏆</h2>
+              <h2 style={{ color: '#2F855A', marginBottom: '8px', fontSize: 'clamp(1.2rem, 4vw, 1.5rem)' }}>🏆 PUNISHMENT COMPLETED! 🏆</h2>
               <p style={{ marginTop: '10px', fontSize: 'clamp(0.9rem, 3vw, 1.2em)' }}>
                 Total items consumed:
                 <strong> {challengeData.pancakes}</strong> pancakes,
@@ -308,7 +308,7 @@ function PublicView() {
 
           <div style={cardStyle}>
             <h2 style={{ fontSize: 'clamp(1.2rem, 4vw, 1.5em)', marginBottom: '8px' }}>
-              {isCompleted ? '🎉 Challenge Complete! 🎉' : 'Time Remaining:'}
+              {isCompleted ? '🎉 Punishment Complete! 🎉' : 'Time Remaining:'}
             </h2>
             
             <div style={{ 
@@ -321,8 +321,6 @@ function PublicView() {
             }}>
               {timeInfo.countdownText}
             </div>
-            
-            <p style={{ fontSize: 'clamp(1rem, 3vw, 1.2em)', fontWeight: 'bold', textAlign: 'center' }}>{timeInfo.text}</p>
             
             <div style={progressContainerStyle}>
               <div style={{
@@ -337,7 +335,7 @@ function PublicView() {
             
             <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '4px', fontSize: '0.8em' }}>
               <span>Start</span>
-              <span>Challenge Complete</span>
+              <span>Punishment Complete</span>
             </div>
           </div>
 
@@ -538,7 +536,7 @@ function AdminView() {
 
       <div style={{ ...dennysTitleContainerStyle, marginTop: '30px' }}>
         <div style={dennysBadgeStyle}>
-          Denny's Pancake Challenge
+          Death by Denny's
           <div style={{ 
             fontSize: '0.6em',
             marginTop: '4px',
@@ -601,7 +599,7 @@ function AdminView() {
               textAlign: 'center',
               animation: showCelebration ? 'pulse 1.5s infinite' : 'none'
             }}>
-              <h2 style={{ color: '#2F855A', marginBottom: '8px', fontSize: 'clamp(1.2rem, 4vw, 1.5rem)' }}>🏆 CHALLENGE COMPLETED! 🏆</h2>
+              <h2 style={{ color: '#2F855A', marginBottom: '8px', fontSize: 'clamp(1.2rem, 4vw, 1.5rem)' }}>🏆 PUNISHMENT COMPLETED! 🏆</h2>
               <p style={{ marginTop: '10px', fontSize: 'clamp(0.9rem, 3vw, 1.2em)' }}>
                 Total items consumed:
                 <strong> {challengeData.pancakes}</strong> pancakes,
@@ -613,7 +611,7 @@ function AdminView() {
 
           <div style={cardStyle}>
             <h2 style={{ fontSize: 'clamp(1.2rem, 4vw, 1.5em)', marginBottom: '8px' }}>
-              {isCompleted ? '🎉 Challenge Complete! 🎉' : 'Time Remaining:'}
+              {isCompleted ? '🎉 Punishment Complete! 🎉' : 'Time Remaining:'}
             </h2>
             
             <div style={{ 
@@ -626,8 +624,6 @@ function AdminView() {
             }}>
               {timeInfo.countdownText}
             </div>
-            
-            <p style={{ fontSize: 'clamp(1rem, 3vw, 1.2em)', fontWeight: 'bold', textAlign: 'center' }}>{timeInfo.text}</p>
             
             <div style={progressContainerStyle}>
               <div style={{
@@ -642,7 +638,7 @@ function AdminView() {
             
             <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '4px', fontSize: '0.8em' }}>
               <span>Start</span>
-              <span>Challenge Complete</span>
+              <span>Punishment Complete</span>
             </div>
           </div>
 
