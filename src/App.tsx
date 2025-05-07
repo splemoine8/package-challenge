@@ -1,10 +1,9 @@
 import { useState, useEffect } from 'react';
 import { doc, setDoc, onSnapshot, serverTimestamp } from 'firebase/firestore';
-import { signInWithEmailAndPassword, signOut } from 'firebase/auth';
-import { db, auth, isUserAdmin } from './config/firebase';
+import { db } from './config/firebase';
 import { formatDistanceToNow, format, differenceInSeconds } from 'date-fns';
 import Confetti from 'react-confetti';
-import { Routes, Route, useNavigate, Navigate } from 'react-router-dom';
+import { Routes, Route, Navigate } from 'react-router-dom';
 
 interface ChallengeData {
   startTime: any;
@@ -428,7 +427,6 @@ function AdminView() {
   });
   const [showCelebration, setShowCelebration] = useState(false);
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
-  const navigate = useNavigate();
 
   useEffect(() => {
     // Listen for changes in the challenge document
