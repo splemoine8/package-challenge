@@ -127,28 +127,6 @@ const dennysBadgeStyle = {
   textAlign: 'center' as const
 };
 
-const titleWrapperStyle = {
-  display: 'flex',
-  justifyContent: 'center',
-  alignItems: 'center',
-  position: 'relative' as const,
-  width: '100%'
-};
-
-const playerImageStyle = {
-  position: 'absolute' as const,
-  right: '-80px',
-  top: '-20px',
-  height: '140px',
-  zIndex: 2
-};
-
-const headingStyle = { 
-  textAlign: 'center' as const,
-  marginBottom: '20px',
-  color: '#2D3748'
-};
-
 const buttonStyle = {
   marginTop: '16px',
   backgroundColor: '#D7001C', // Denny's red
