@@ -30,7 +30,14 @@ const formatMinutesToReadable = (totalMinutes: number) => {
 
 // Helper function to calculate time remaining
 const calculateTimeRemaining = (challengeData: ChallengeData | null, currentTime: Date) => {
-  if (!challengeData?.startTime || !challengeData.isActive) return { text: 'Challenge not started', minutes: 0, percentComplete: 0, countdownText: '24:00:00' };
+  if (!challengeData?.startTime || !challengeData.isActive) {
+    return { 
+      text: 'Waiting for challenge to start...', 
+      minutes: 24 * 60, 
+      percentComplete: 0, 
+      countdownText: '24:00:00'
+    };
+  }
   
   const startTime = challengeData.startTime.toDate();
   const totalSeconds = 24 * 60 * 60; // 24 hours in seconds
@@ -311,30 +318,29 @@ function PublicView() {
           Current Time: {format(currentTime, 'h:mm:ss a, MMMM do yyyy')}
         </div>
         
-        {challengeData?.isActive && (
+        {/* Show UI regardless of isActive status */}
+        {isCompleted ? (
+          <div style={{
+            padding: '20px',
+            marginTop: '16px',
+            backgroundColor: '#C6F6D5',
+            borderRadius: '8px',
+            textAlign: 'center',
+            animation: showCelebration ? 'pulse 1.5s infinite' : 'none'
+          }}>
+            <h2 style={{ color: '#2F855A', marginBottom: '8px', fontSize: 'clamp(1.2rem, 4vw, 1.5rem)' }}>🏆 PUNISHMENT COMPLETED! 🏆</h2>
+            <p style={{ marginTop: '10px', fontSize: 'clamp(0.9rem, 3vw, 1.2em)' }}>
+              Total items consumed:
+              <strong> {challengeData?.pancakes || 0}</strong> pancakes,
+              <strong> {challengeData?.baconStrips || 0}</strong> bacon strips, and
+              <strong> {challengeData?.helperPancakes || 0}</strong> leaguemate pancakes
+            </p>
+          </div>
+        ) : (
           <>
-            {isCompleted && (
-              <div style={{
-                padding: '20px',
-                marginTop: '16px',
-                backgroundColor: '#C6F6D5',
-                borderRadius: '8px',
-                textAlign: 'center',
-                animation: showCelebration ? 'pulse 1.5s infinite' : 'none'
-              }}>
-                <h2 style={{ color: '#2F855A', marginBottom: '8px', fontSize: 'clamp(1.2rem, 4vw, 1.5rem)' }}>🏆 PUNISHMENT COMPLETED! 🏆</h2>
-                <p style={{ marginTop: '10px', fontSize: 'clamp(0.9rem, 3vw, 1.2em)' }}>
-                  Total items consumed:
-                  <strong> {challengeData.pancakes}</strong> pancakes,
-                  <strong> {challengeData.baconStrips}</strong> bacon strips, and
-                  <strong> {challengeData.helperPancakes}</strong> leaguemate pancakes
-                </p>
-              </div>
-            )}
-
             <div style={cardStyle}>
               <h2 style={{ fontSize: 'clamp(1.2rem, 4vw, 1.5em)', marginBottom: '8px' }}>
-                {isCompleted ? '🎉 Punishment Complete! 🎉' : 'Time Remaining:'}
+                {!challengeData?.isActive ? 'Punishment Ready To Start' : 'Time Remaining:'}
               </h2>
               
               <div style={{ 
@@ -343,18 +349,29 @@ function PublicView() {
                 textAlign: 'center', 
                 margin: '10px 0', 
                 fontFamily: 'monospace',
-                color: isCompleted ? '#48BB78' : 'inherit'
+                color: !challengeData?.isActive ? '#888' : 'inherit'
               }}>
                 {timeInfo.countdownText}
               </div>
+              
+              {!challengeData?.isActive && (
+                <div style={{ 
+                  textAlign: 'center', 
+                  color: '#666', 
+                  fontStyle: 'italic', 
+                  marginBottom: '10px'
+                }}>
+                  Waiting for the pancakes to sizzle...
+                </div>
+              )}
               
               <div style={progressContainerStyle}>
                 <div style={{
                   width: `${timeInfo.percentComplete}%`,
                   height: '100%',
                   backgroundColor: timeInfo.percentComplete > 75 ? '#48BB78' : 
-                                   timeInfo.percentComplete > 50 ? '#4299E1' :
-                                   timeInfo.percentComplete > 25 ? '#ECC94B' : '#F56565',
+                                 timeInfo.percentComplete > 50 ? '#4299E1' :
+                                 timeInfo.percentComplete > 25 ? '#ECC94B' : '#F56565',
                   transition: 'width 0.5s ease-in-out'
                 }} />
               </div>
@@ -371,38 +388,38 @@ function PublicView() {
               <div style={{...foodItemStyle, justifyContent: 'space-between'}}>
                 <div style={{display: 'flex', alignItems: 'center', gap: '8px'}}>
                   <span style={{ fontSize: '1.5em' }}>🥞</span>
-                  <span>Pancakes eaten: <strong>{challengeData.pancakes}</strong></span>
+                  <span>Pancakes eaten: <strong>{challengeData?.pancakes || 0}</strong></span>
                 </div>
-                <span style={{ color: '#E53E3E', fontWeight: 'bold' }}>-{challengeData.pancakes} hr</span>
+                <span style={{ color: '#E53E3E', fontWeight: 'bold' }}>-{challengeData?.pancakes || 0} hr</span>
               </div>
               
               <div style={{...foodItemStyle, justifyContent: 'space-between'}}>
                 <div style={{display: 'flex', alignItems: 'center', gap: '8px'}}>
                   <span style={{ fontSize: '1.5em' }}>🥓</span>
-                  <span>Bacon strips eaten: <strong>{challengeData.baconStrips}</strong></span>
+                  <span>Bacon strips eaten: <strong>{challengeData?.baconStrips || 0}</strong></span>
                 </div>
                 <span style={{ color: '#E53E3E', fontWeight: 'bold' }}>
-                  -{Math.floor(challengeData.baconStrips / 2) * 15} min
+                  -{Math.floor((challengeData?.baconStrips || 0) / 2) * 15} min
                 </span>
               </div>
               
               <div style={{...foodItemStyle, justifyContent: 'space-between'}}>
                 <div style={{display: 'flex', alignItems: 'center', gap: '8px'}}>
                   <span style={{ fontSize: '1.5em' }}>🌭</span>
-                  <span>Sausage links eaten: <strong>{challengeData.sausageLinks || 0}</strong></span>
+                  <span>Sausage links eaten: <strong>{challengeData?.sausageLinks || 0}</strong></span>
                 </div>
                 <span style={{ color: '#E53E3E', fontWeight: 'bold' }}>
-                  -{Math.floor((challengeData.sausageLinks || 0) / 2) * 15} min
+                  -{Math.floor((challengeData?.sausageLinks || 0) / 2) * 15} min
                 </span>
               </div>
               
               <div style={{...foodItemStyle, justifyContent: 'space-between'}}>
                 <div style={{display: 'flex', alignItems: 'center', gap: '8px'}}>
                   <span style={{ fontSize: '1.5em' }}>🤝</span>
-                  <span>Leaguemate pancakes: <strong>{challengeData.helperPancakes}</strong></span>
+                  <span>Leaguemate pancakes: <strong>{challengeData?.helperPancakes || 0}</strong></span>
                 </div>
                 <span style={{ color: '#E53E3E', fontWeight: 'bold' }}>
-                  -{challengeData.helperPancakes * 30} min
+                  -{(challengeData?.helperPancakes || 0) * 30} min
                 </span>
               </div>
               
@@ -412,7 +429,7 @@ function PublicView() {
                   <span>Calories consumed:</span>
                 </div>
                 <span style={{ fontWeight: 'bold', color: '#DD6B20' }}>
-                  {calculateCalories(challengeData)}
+                  {calculateCalories(challengeData || { pancakes: 0, baconStrips: 0, sausageLinks: 0, helperPancakes: 0, startTime: null, isActive: false })}
                 </span>
               </div>
               
@@ -428,7 +445,7 @@ function PublicView() {
               }}>
                 <span>Total time reduction:</span>
                 <span style={{ fontWeight: 'bold' }}>
-                  {formatMinutesToReadable(calculateTotalTimeReduction(challengeData))}
+                  {formatMinutesToReadable(calculateTotalTimeReduction(challengeData || { pancakes: 0, baconStrips: 0, sausageLinks: 0, helperPancakes: 0, startTime: null, isActive: false }))}
                 </span>
               </div>
             </div>
@@ -668,30 +685,29 @@ function AdminView() {
           </button>
         </div>
 
-        {challengeData?.isActive && (
+        {/* Show UI regardless of isActive status */}
+        {isCompleted ? (
+          <div style={{
+            padding: '20px',
+            marginTop: '16px',
+            backgroundColor: '#C6F6D5',
+            borderRadius: '8px',
+            textAlign: 'center',
+            animation: showCelebration ? 'pulse 1.5s infinite' : 'none'
+          }}>
+            <h2 style={{ color: '#2F855A', marginBottom: '8px', fontSize: 'clamp(1.2rem, 4vw, 1.5rem)' }}>🏆 PUNISHMENT COMPLETED! 🏆</h2>
+            <p style={{ marginTop: '10px', fontSize: 'clamp(0.9rem, 3vw, 1.2em)' }}>
+              Total items consumed:
+              <strong> {challengeData?.pancakes || 0}</strong> pancakes,
+              <strong> {challengeData?.baconStrips || 0}</strong> bacon strips, and
+              <strong> {challengeData?.helperPancakes || 0}</strong> leaguemate pancakes
+            </p>
+          </div>
+        ) : (
           <>
-            {isCompleted && (
-              <div style={{
-                padding: '20px',
-                marginTop: '16px',
-                backgroundColor: '#C6F6D5',
-                borderRadius: '8px',
-                textAlign: 'center',
-                animation: showCelebration ? 'pulse 1.5s infinite' : 'none'
-              }}>
-                <h2 style={{ color: '#2F855A', marginBottom: '8px', fontSize: 'clamp(1.2rem, 4vw, 1.5rem)' }}>🏆 PUNISHMENT COMPLETED! 🏆</h2>
-                <p style={{ marginTop: '10px', fontSize: 'clamp(0.9rem, 3vw, 1.2em)' }}>
-                  Total items consumed:
-                  <strong> {challengeData.pancakes}</strong> pancakes,
-                  <strong> {challengeData.baconStrips}</strong> bacon strips, and
-                  <strong> {challengeData.helperPancakes}</strong> leaguemate pancakes
-                </p>
-              </div>
-            )}
-
             <div style={cardStyle}>
               <h2 style={{ fontSize: 'clamp(1.2rem, 4vw, 1.5em)', marginBottom: '8px' }}>
-                {isCompleted ? '🎉 Punishment Complete! 🎉' : 'Time Remaining:'}
+                {!challengeData?.isActive ? 'Challenge Ready To Start' : 'Time Remaining:'}
               </h2>
               
               <div style={{ 
@@ -700,18 +716,29 @@ function AdminView() {
                 textAlign: 'center', 
                 margin: '10px 0', 
                 fontFamily: 'monospace',
-                color: isCompleted ? '#48BB78' : 'inherit'
+                color: !challengeData?.isActive ? '#888' : 'inherit'
               }}>
                 {timeInfo.countdownText}
               </div>
+              
+              {!challengeData?.isActive && (
+                <div style={{ 
+                  textAlign: 'center', 
+                  color: '#666', 
+                  fontStyle: 'italic', 
+                  marginBottom: '10px'
+                }}>
+                  Click "Start Challenge" to begin
+                </div>
+              )}
               
               <div style={progressContainerStyle}>
                 <div style={{
                   width: `${timeInfo.percentComplete}%`,
                   height: '100%',
                   backgroundColor: timeInfo.percentComplete > 75 ? '#48BB78' : 
-                                   timeInfo.percentComplete > 50 ? '#4299E1' :
-                                   timeInfo.percentComplete > 25 ? '#ECC94B' : '#F56565',
+                                 timeInfo.percentComplete > 50 ? '#4299E1' :
+                                 timeInfo.percentComplete > 25 ? '#ECC94B' : '#F56565',
                   transition: 'width 0.5s ease-in-out'
                 }} />
               </div>
@@ -722,11 +749,13 @@ function AdminView() {
               </div>
             </div>
 
+            {/* Admin action buttons for adding items */}
             <div style={buttonGroupStyle}>
               <button 
                 style={{...buttonStyle, flex: '1', minWidth: isMobile ? '80px' : '120px', maxWidth: isMobile ? '100px' : '200px'}}
                 onClick={() => addItem('pancakes')}
                 title="Add Pancake (-1 hour)"
+                disabled={!challengeData?.isActive}
               >
                 {renderButtonText('🥞', 'Add Pancake (-1 hour)')}
               </button>
@@ -734,6 +763,7 @@ function AdminView() {
                 style={{...buttonStyle, backgroundColor: '#FFD200', color: '#000', flex: '1', minWidth: isMobile ? '80px' : '120px', maxWidth: isMobile ? '100px' : '200px'}}
                 onClick={() => addItem('baconStrips')}
                 title="Add Bacon (-15 min per 2)"
+                disabled={!challengeData?.isActive}
               >
                 {renderButtonText('🥓', 'Add Bacon (-15 min per 2)')}
               </button>
@@ -741,6 +771,7 @@ function AdminView() {
                 style={{...buttonStyle, backgroundColor: '#8B4513', color: '#FFF', flex: '1', minWidth: isMobile ? '80px' : '120px', maxWidth: isMobile ? '100px' : '200px'}}
                 onClick={() => addItem('sausageLinks')}
                 title="Add Sausage (-15 min per 2)"
+                disabled={!challengeData?.isActive}
               >
                 {renderButtonText('🌭', 'Add Sausage (-15 min per 2)')}
               </button>
@@ -748,6 +779,7 @@ function AdminView() {
                 style={{...buttonStyle, backgroundColor: '#0070DD', flex: '1', minWidth: isMobile ? '80px' : '120px', maxWidth: isMobile ? '100px' : '200px'}}
                 onClick={() => addItem('helperPancakes')}
                 title="Add Leaguemate Pancake (-30 min)"
+                disabled={!challengeData?.isActive}
               >
                 {renderButtonText('🤝', 'Add Leaguemate Pancake (-30 min)')}
               </button>
@@ -759,38 +791,38 @@ function AdminView() {
               <div style={{...foodItemStyle, justifyContent: 'space-between'}}>
                 <div style={{display: 'flex', alignItems: 'center', gap: '8px'}}>
                   <span style={{ fontSize: '1.5em' }}>🥞</span>
-                  <span>Pancakes eaten: <strong>{challengeData.pancakes}</strong></span>
+                  <span>Pancakes eaten: <strong>{challengeData?.pancakes || 0}</strong></span>
                 </div>
-                <span style={{ color: '#E53E3E', fontWeight: 'bold' }}>-{challengeData.pancakes} hr</span>
+                <span style={{ color: '#E53E3E', fontWeight: 'bold' }}>-{challengeData?.pancakes || 0} hr</span>
               </div>
               
               <div style={{...foodItemStyle, justifyContent: 'space-between'}}>
                 <div style={{display: 'flex', alignItems: 'center', gap: '8px'}}>
                   <span style={{ fontSize: '1.5em' }}>🥓</span>
-                  <span>Bacon strips eaten: <strong>{challengeData.baconStrips}</strong></span>
+                  <span>Bacon strips eaten: <strong>{challengeData?.baconStrips || 0}</strong></span>
                 </div>
                 <span style={{ color: '#E53E3E', fontWeight: 'bold' }}>
-                  -{Math.floor(challengeData.baconStrips / 2) * 15} min
+                  -{Math.floor((challengeData?.baconStrips || 0) / 2) * 15} min
                 </span>
               </div>
               
               <div style={{...foodItemStyle, justifyContent: 'space-between'}}>
                 <div style={{display: 'flex', alignItems: 'center', gap: '8px'}}>
                   <span style={{ fontSize: '1.5em' }}>🌭</span>
-                  <span>Sausage links eaten: <strong>{challengeData.sausageLinks || 0}</strong></span>
+                  <span>Sausage links eaten: <strong>{challengeData?.sausageLinks || 0}</strong></span>
                 </div>
                 <span style={{ color: '#E53E3E', fontWeight: 'bold' }}>
-                  -{Math.floor((challengeData.sausageLinks || 0) / 2) * 15} min
+                  -{Math.floor((challengeData?.sausageLinks || 0) / 2) * 15} min
                 </span>
               </div>
               
               <div style={{...foodItemStyle, justifyContent: 'space-between'}}>
                 <div style={{display: 'flex', alignItems: 'center', gap: '8px'}}>
                   <span style={{ fontSize: '1.5em' }}>🤝</span>
-                  <span>Leaguemate pancakes: <strong>{challengeData.helperPancakes}</strong></span>
+                  <span>Leaguemate pancakes: <strong>{challengeData?.helperPancakes || 0}</strong></span>
                 </div>
                 <span style={{ color: '#E53E3E', fontWeight: 'bold' }}>
-                  -{challengeData.helperPancakes * 30} min
+                  -{(challengeData?.helperPancakes || 0) * 30} min
                 </span>
               </div>
               
@@ -800,7 +832,7 @@ function AdminView() {
                   <span>Calories consumed:</span>
                 </div>
                 <span style={{ fontWeight: 'bold', color: '#DD6B20' }}>
-                  {calculateCalories(challengeData)}
+                  {calculateCalories(challengeData || { pancakes: 0, baconStrips: 0, sausageLinks: 0, helperPancakes: 0, startTime: null, isActive: false })}
                 </span>
               </div>
               
@@ -816,7 +848,7 @@ function AdminView() {
               }}>
                 <span>Total time reduction:</span>
                 <span style={{ fontWeight: 'bold' }}>
-                  {formatMinutesToReadable(calculateTotalTimeReduction(challengeData))}
+                  {formatMinutesToReadable(calculateTotalTimeReduction(challengeData || { pancakes: 0, baconStrips: 0, sausageLinks: 0, helperPancakes: 0, startTime: null, isActive: false }))}
                 </span>
               </div>
             </div>
